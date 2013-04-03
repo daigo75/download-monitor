@@ -28,18 +28,22 @@ load_plugin_textdomain('wp-download_monitor', false, 'download-monitor/languages
 global $wpdb, $wp_dlm_db, $wp_dlm_db_log;
 
 $logs = $wpdb->get_results("
-	SELECT $wp_dlm_db.*, $wp_dlm_db_log.ip_address, $wp_dlm_db_log.date, $wp_dlm_db_log.user_id
-	FROM $wp_dlm_db_log  
-	INNER JOIN $wp_dlm_db ON $wp_dlm_db_log.download_id = $wp_dlm_db.id 
+	SELECT $wp_dlm_db.*
+		,$wp_dlm_db_log.ip_address
+		,$wp_dlm_db_log.date
+		,$wp_dlm_db_log.user_id
+		,$wp_dlm_db_log.referer
+	FROM $wp_dlm_db_log
+	INNER JOIN $wp_dlm_db ON $wp_dlm_db_log.download_id = $wp_dlm_db.id
 	ORDER BY $wp_dlm_db_log.date DESC;
 	");
-	
+
 $log = "Download ID,Title,File,User,IP Address,Date\n";
 
 if (!empty($logs)) {
 	foreach ( $logs as $l ) {
 		$date = date_i18n(__("jS M Y H:i:s","wp-download_monitor"), strtotime($l->date));
-		$path 	= get_bloginfo('wpurl').'/'.get_option('upload_path').'/';		
+		$path 	= get_bloginfo('wpurl').'/'.get_option('upload_path').'/';
 		$file = str_replace($path, "", $l->filename);
 		$links = explode("/",$file);
 		$file = end($links);
@@ -48,10 +52,10 @@ if (!empty($logs)) {
 			$user_info = get_userdata($l->user_id);
 			$user = $user_info->user_login.' (#'.$user_info->ID.')';
 		}
-		
-		$log .= "$l->id,$l->title,$file,$user,$l->ip_address,$date\n";		
+
+		$log .= "$l->id,$l->title,$file,$user,$l->ip_address,$l->referer,$date\n";
 	}
-} 
+}
 
 header("Content-type: text/csv");
 header("Content-Disposition: attachment; filename=download_log.csv");

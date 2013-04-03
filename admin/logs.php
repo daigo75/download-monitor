@@ -55,6 +55,7 @@ function wp_dlm_log()
 				<th scope="col"><?php _e('File',"wp-download_monitor"); ?></th>
                 <th scope="col"><?php _e('User',"wp-download_monitor"); ?></th>
                 <th scope="col"><?php _e('IP Address',"wp-download_monitor"); ?></th>
+                <th scope="col"><?php _e('Referer',"wp-download_monitor"); ?></th>
 				<th scope="col"><?php _e('Date',"wp-download_monitor"); ?></th>
 				</tr>
 			</thead>
@@ -69,7 +70,13 @@ function wp_dlm_log()
 				// Figure out the limit for the query based on the current page number.
 				$from = (($page * 20) - 20);
 
-				$paged_select = sprintf("SELECT $wp_dlm_db.*, $wp_dlm_db_log.ip_address, $wp_dlm_db_log.date, $wp_dlm_db_log.user_id
+				$paged_select = sprintf("
+					SELECT
+						$wp_dlm_db.*
+						,$wp_dlm_db_log.ip_address
+						,$wp_dlm_db_log.date
+						,$wp_dlm_db_log.user_id
+						,$wp_dlm_db_log.referer
 					FROM $wp_dlm_db_log
 					INNER JOIN $wp_dlm_db ON $wp_dlm_db_log.download_id = $wp_dlm_db.id
 					ORDER BY $wp_dlm_db_log.date DESC LIMIT %s,20;",
@@ -102,6 +109,7 @@ function wp_dlm_log()
 				    	}
 						echo '</td>
 						<td><a href="http://whois.arin.net/rest/net/NET-'.$log->ip_address.'" target="_blank">'.$log->ip_address.'</a></td>
+						<td><a href="http://whois.arin.net/rest/net/NET-'.$log->referer.'" target="_blank">'.$log->referer.'</a></td>
 						<td>'.$date.'</td>';
 
 					}

@@ -194,6 +194,7 @@ do_action('wp_dlm_download');
 				$dupe = false;
 				$blocked = false;
 				$ipAddress = '';
+				$Referer = $_SERVER['HTTP_REFERER'];
 
 				if( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && strtolower($_SERVER['HTTP_X_FORWARDED_FOR'])!='unknown') {
 					$ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -243,7 +244,8 @@ do_action('wp_dlm_download');
 					$timestamp = current_time('timestamp', 1);
 					$user = $user_ID;
 					if (empty($user)) $user = '0';
-					$wpdb->query( $wpdb->prepare( "INSERT INTO $wp_dlm_db_log (download_id, user_id, date, ip_address) VALUES (%s, %s, %s, %s);", $d->id, $user, date("Y-m-d H:i:s" ,$timestamp), $ipAddress ) );
+					$wpdb->query( $wpdb->prepare("INSERT INTO $wp_dlm_db_log (download_id, user_id, date, ip_address, referer) VALUES (%s, %s, %s, %s, %s);", $d->id,
+																			 $user, date("Y-m-d H:i:s" ,$timestamp), $ipAddress, $Referer) );
 				}
 
 			   // Select a mirror
